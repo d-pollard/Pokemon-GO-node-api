@@ -11,6 +11,8 @@ const bignum = require('bignum');
 
 const s2 = require('simple-s2-node');
 const Logins = require('./logins');
+const fs = require('fs');
+const pokemonlist = JSON.parse(fs.readFileSync(__dirname + '/pokemons.json', 'utf8'));
 
 let builder = ProtoBuf.loadProtoFile('pokemon.proto');
 if (builder === null) {
@@ -70,6 +72,8 @@ function Pokeio() {
             console.log(str);
         }
     };
+
+    self.pokemonlist = pokemonlist.pokemon;
 
     function api_req(api_endpoint, access_token, req, callback) {
         // Auth
@@ -284,6 +288,59 @@ function Pokeio() {
 
             callback(null, data.results[0].formatted_address);
         });
+    };
+
+    self.CatchPokemon = function (mapPokemon, normalizedHitPosition, normalizedReticleSize, spinModifier, pokeball, callback) {
+        let {apiEndpoint, accessToken} = self.playerInfo;
+        var catchPokemon = new RequestEnvelop.CatchPokemonMessage({
+            'encounter_id': mapPokemon.EncounterId,
+            'pokeball': pokeball,
+            'normalized_reticle_size': normalizedReticleSize,
+            'spawnpoint_id': mapPokemon.SpawnPointId,
+            'hit_pokemon': true,
+            'spin_modifier': spinModifier,
+            'normalized_hit_position': normalizedHitPosition
+        });
+
+        var req = new RequestEnvelop.Requests(103, catchPokemon.encode().toBuffer());
+
+        api_req(apiEndpoint, accessToken, req, function (err, f_ret) {
+            if (err) {
+                return callback(err);
+            }
+            else if (!f_ret || !f_ret.payload || !f_ret.payload[0]) {
+                return callback('No result');
+            }
+
+            var catchPokemonResponse = ResponseEnvelop.CatchPokemonResponse.decode(f_ret.payload[0]);
+            callback(null, catchPokemonResponse)
+        });
+
+    };
+
+    self.EncounterPokemon = function (catchablePokemon, callback) {
+        let {apiEndpoint, accessToken, latitude, longitude} = self.playerInfo;
+        var encounterPokemon = new RequestEnvelop.EncounterMessage({
+            'encounter_id': catchablePokemon.EncounterId,
+            'spawnpoint_id': catchablePokemon.SpawnPointId,
+            'player_latitude': latitude,
+            'player_longitude': longitude
+        });
+
+        var req = new RequestEnvelop.Requests(102, encounterPokemon.encode().toBuffer());
+
+        api_req(apiEndpoint, accessToken, req, function (err, f_ret) {
+            if (err) {
+                return callback(err);
+            }
+            else if (!f_ret || !f_ret.payload || !f_ret.payload[0]) {
+                return callback('No result');
+            }
+
+            var catchPokemonResponse = ResponseEnvelop.EncounterResponse.decode(f_ret.payload[0]);
+            callback(null, catchPokemonResponse)
+        });
+
     };
 
     self.GetLocationCoords = function () {
