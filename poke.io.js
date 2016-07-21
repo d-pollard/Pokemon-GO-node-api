@@ -290,16 +290,16 @@ function Pokeio() {
         });
     };
 
-    self.CatchPokemon = function (mapPokemon, normalizedHitPosition, normalizedReticleSize, spinModifier, pokeball, callback) {
+    self.CatchPokemon = function (mapPokemon, pokeball, callback) {
         let {apiEndpoint, accessToken} = self.playerInfo;
         var catchPokemon = new RequestEnvelop.CatchPokemonMessage({
             'encounter_id': mapPokemon.EncounterId,
             'pokeball': pokeball,
-            'normalized_reticle_size': normalizedReticleSize,
+            'normalized_reticle_size': 1.950,
             'spawnpoint_id': mapPokemon.SpawnPointId,
             'hit_pokemon': true,
-            'spin_modifier': spinModifier,
-            'normalized_hit_position': normalizedHitPosition
+            'spin_modifier': 1,
+            'normalized_hit_position': 1
         });
 
         var req = new RequestEnvelop.Requests(103, catchPokemon.encode().toBuffer());
@@ -320,9 +320,10 @@ function Pokeio() {
 
     self.EncounterPokemon = function (catchablePokemon, callback) {
         let {apiEndpoint, accessToken, latitude, longitude} = self.playerInfo;
+
         var encounterPokemon = new RequestEnvelop.EncounterMessage({
             'encounter_id': catchablePokemon.EncounterId,
-            'spawnpoint_id': catchablePokemon.SpawnPointId,
+            'spawn_point_id': catchablePokemon.SpawnPointId,
             'player_latitude': latitude,
             'player_longitude': longitude
         });
@@ -338,7 +339,8 @@ function Pokeio() {
             }
 
             var catchPokemonResponse = ResponseEnvelop.EncounterResponse.decode(f_ret.payload[0]);
-            callback(null, catchPokemonResponse)
+
+            callback(null, catchPokemonResponse);
         });
 
     };
@@ -381,7 +383,7 @@ function Pokeio() {
             self.playerInfo.altitude = location.coords.altitude || self.playerInfo.altitude;
 
             geocoder.reverseGeocode(...GetCoords(self), function (err, data) {
-                if (data.status !== 'ZERO_RESULTS') {
+                if (data.status !== 'ZERO_RESULTS' && data.results && data.results[0]) {
                     self.playerInfo.locationName = data.results[0].formatted_address;
                 }
 
