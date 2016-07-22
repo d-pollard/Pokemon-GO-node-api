@@ -902,7 +902,7 @@ message ResponseEnvelop {
       optional CatchStatus Status = 1;
       optional double MissPercent = 2;
         // optional uint64 CapturedPokemonId = 3;
-      optional CaptureAward CaptureAward = 4;
+      // optional CaptureAward Captureaward = 4;
 
       enum CatchStatus {
           CATCH_ERROR = 0;
@@ -913,6 +913,12 @@ message ResponseEnvelop {
       }
   }
 
+  message CaptureAward {
+      repeated ActivityType activity = 1;
+      repeated int32 XP = 2;
+      repeated int32 Candy = 3;
+      repeated int32 Stardust = 4;
+  }
   enum ActivityType {
       ACTIVITY_UNKNOWN = 0;
       ACTIVITY_CATCH_POKEMON = 1;
@@ -938,14 +944,7 @@ message ResponseEnvelop {
       ACTIVITY_HATCH_EGG_LARGE_BONUS = 21;
       ACTIVITY_DEFEAT_GYM_DEFENDER = 22;
       ACTIVITY_DEFEAT_GYM_LEADER = 23;
-  }
-
-  message CaptureAward {
-      repeated ActivityType ActivityType = 1;
-      repeated int32 XP = 2;
-      repeated int32 Candy = 3;
-      repeated int32 Stardust = 4;
-  }
+    }
 
   message CaptureProbability {
       repeated ItemId PokeballType = 1;
@@ -995,7 +994,8 @@ message ResponseEnvelop {
   }
 
   message ItemAward {
-  optional ItemId item_id = 1;
-  optional int32 item_count = 2;
+    optional ItemId item_id = 1;
+    optional int32 item_count = 2;
   }
+
 }

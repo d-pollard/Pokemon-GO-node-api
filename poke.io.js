@@ -280,6 +280,7 @@ function Pokeio() {
     };
 
     self.CatchPokemon = function (mapPokemon, pokeball, callback) {
+        console.log('Attempting to catch now...');
         let {apiEndpoint, accessToken} = self.playerInfo;
         var catchPokemon = new RequestEnvelop.CatchPokemonMessage({
             'encounter_id': mapPokemon.EncounterId,
@@ -288,7 +289,7 @@ function Pokeio() {
             'spawnpoint_id': mapPokemon.SpawnPointId,
             'hit_pokemon': true,
             'spin_modifier': 1,
-            'normalized_hit_position': 2
+            'normalized_hit_position': 1
         });
 
         var req = new RequestEnvelop.Requests(103, catchPokemon.encode().toBuffer());
@@ -317,6 +318,8 @@ function Pokeio() {
             'player_latitude': latitude,
             'player_longitude': longitude
         });
+
+        // console.log(encounterPokemon);
 
         var req = new RequestEnvelop.Requests(102, encounterPokemon.encode().toBuffer());
 
@@ -416,7 +419,13 @@ function Pokeio() {
             var FortSearchResponse = ResponseEnvelop.FortSearchResponse.decode(f_ret.payload[0]);
             callback(null, FortSearchResponse);
         });
-    }
+    };
+
+    self.warpSpeed = function(lat,long) {
+        self.playerInfo.latitude = lat;
+        self.playerInfo.longitude = long;
+        return true;
+    };
 }
 
 module.exports = new Pokeio();

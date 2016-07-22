@@ -33,8 +33,8 @@ Pokeio.init(username, password, location, provider, function(err) {
 		console.log('[i] Stardust: ' + profile.currency[1].amount);
 
 		setInterval(function() {
-            // This will let you know the heartbeat is pumping..
-			console.log('pump...');
+			// This will let you know the heartbeat is pumping..
+			console.log('[o] pump...');
 			Pokeio.Heartbeat(function(a,hb) {
 				if(a !== null) {
 					console.log('There appeared to be an error...');
@@ -42,15 +42,18 @@ Pokeio.init(username, password, location, provider, function(err) {
 					for (var i = hb.cells.length - 1; i >= 0; i--) {
 
 						if(hb.cells[i].WildPokemon[0]) {
-							var iSpawnz = hb.cells[i].WildPokemon[0];
-							Pokeio.EncounterPokemon(iSpawnz, function(j,ax) {
-								var useBall = 1; // ITEM_POKE_BALL = 1; ITEM_GREAT_BALL = 2; ITEM_ULTRA_BALL = 3; ITEM_MASTER_BALL = 4; 
-								var pokemon = Pokeio.pokemonlist[parseInt(ax.WildPokemon.pokemon.PokemonId)-1];
-								Pokeio.CatchPokemon(ax.WildPokemon, useBall, function(a, b){
-									var status = ['Unexpected error', 'Successful catch', 'Catch Escape', 'Catch Flee', 'Missed Catch'];
-									console.log('Catch status for ' + pokemon.name + ': ' + status[b.status])
+							for (var x = hb.cells[i].WildPokemon.length - 1; x >= 0; x--) {
+								var currentPokemon = hb.cells[i].WildPokemon[x];
+								var iPokedex = Pokeio.pokemonlist[parseInt(currentPokemon.pokemon.PokemonId)-1];
+								Pokeio.EncounterPokemon(currentPokemon, function(suc, dat) {
+									console.log('Encountering pokemon ' + iPokedex.name + '...');
+									Pokeio.CatchPokemon(currentPokemon, 2, function(xsuc, xdat) {
+										var status = ['Unexpected error', 'Successful catch', 'Catch Escape', 'Catch Flee', 'Missed Catch'];
+										console.log(status[xdat.Status]);
+										Pokeio.changePosition();
+									});
 								});
-							});
+							}
 						}
 					}
 					// console.log(util.inspect(hb, showHidden=false, depth=10, colorize=true));
