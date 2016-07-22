@@ -276,11 +276,12 @@ function Pokego() {
         });
     };
 
-    self.fireAndForgetCatch = function(catchablePokemon) {
-        console.log('Here');
+    self.fireAndForgetCatch = function(catchablePokemon, name) {
         return new Promise(function(resolve, reject) {
             self.EncounterPokemon(catchablePokemon).then((data) => {
                 self.CatchPokemon(data.WildPokemon, 1).then((final) => {
+                    var status = ['Unexpected error', 'Successful catch', 'Catch Escape', 'Catch Flee', 'Missed Catch'];
+                    console.log('Catch status for ' + name + ': ' + status[parseInt(final.Status)]);
                     return resolve(final);
                 }).catch((err) => {
                     console.log(err);
@@ -311,7 +312,8 @@ function Pokego() {
                 if (!data || !data.payload || !data.payload[0]) {
                     return reject(data);
                 }
-                return resolve(catchPokemonResponse = ResponseEnvelop.CatchPokemonResponse.decode(data.payload[0]));
+                var catchPokemonResponse = ResponseEnvelop.CatchPokemonResponse.decode(data.payload[0]);
+                return resolve(catchPokemonResponse);
             }); 
         });
     };
