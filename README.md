@@ -3,11 +3,9 @@ Pokemon GO api node.js library, still WIP<br>
 Check main.js for examples
 
 ## Installation & Usage:
-```
-npm install pokemon-go-node-api
-```
+
 ```javascript
-var Pokeio = require('pokemon-go-node-api')
+var Pokeio = require('./pokemon-go-node-api')
 ```
 Check [example.js](./example.js) for the result showed in the demo or check the documentation below.
 
@@ -111,5 +109,5 @@ Accepts raw coordinates or location name based on the type property.
 Python demo: [tejado](https://github.com/tejado/pokemongo-api-demo) <br>
 
 ## Contact me
-[@Arm4x](https://twitter.com/Arm4x)
+[@Derek](mailto:derek@heroesplay.com)
 Feel free to contact me for help or anything else
