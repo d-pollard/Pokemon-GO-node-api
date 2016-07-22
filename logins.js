@@ -79,12 +79,14 @@ module.exports = {
                     token = body.split('token=')[1];
                     token = token.split('&')[0];
 
+                    var expiry = body.split('token=')[1].split('&expires=')[1];
+
                     if (!token) {
                         return callback(new Error('Login failed'), null);
                     }
 
                     self.DebugPrint('[i] Session token: ' + token);
-                    callback(null, token);
+                    callback(null, [token, expiry]);
                 });
 
             });
@@ -98,7 +100,7 @@ module.exports = {
                     if (err) {
                         return callback(err, null);
                     }
-                    callback(null, data.Auth);
+                    callback(null, [data.Auth, data.Expiry]);
                 });
             }
             else {

@@ -63,7 +63,8 @@ function Pokeio() {
         altitude: 0,
         locationName: '',
         provider: '',
-        apiEndpoint: ''
+        apiEndpoint: '',
+        tokenExpire: 0
     };
 
     self.DebugPrint = function (str) {
@@ -168,9 +169,10 @@ function Pokeio() {
                     return callback(err);
                 }
 
-                self.playerInfo.accessToken = token;
-                self.DebugPrint('[i] Received PTC access token!')
-                callback(null, token);
+                self.playerInfo.accessToken = token[0];
+                self.playerInfo.tokenExpire = token[1];
+                self.DebugPrint('[i] Received PTC access token! {Expires: ' + token[1] + '}');
+                callback(null, token[0]);
             });
         } else {
             Logins.GoogleAccount(user, pass, self, function (err, token) {
@@ -178,9 +180,10 @@ function Pokeio() {
                     return callback(err);
                 }
 
-                self.playerInfo.accessToken = token;
-                self.DebugPrint('[i] Received Google access token!')
-                callback(null, token);
+                self.playerInfo.accessToken = token[0];
+                self.playerInfo.tokenExpire = token[1];
+                self.DebugPrint('[i] Received Google access token! {Expires: ' + token[1] + '}');
+                callback(null, token[0]);
             });
         }
     };
