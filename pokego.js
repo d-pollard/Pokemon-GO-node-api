@@ -220,7 +220,7 @@ function Pokego() {
             api_req(self.playerInfo.apiEndpoint, self.playerInfo.accessToken, req).then((f_ret) => {
                 var profile = ResponseEnvelop.ProfilePayload.decode(f_ret.payload[0]).profile
                 if (profile.username) {
-                    self.DebugPrint('[i] Logged in!');
+                    self.DebugPrint('[i] Player Profile');
                 }
                 return resolve(profile);
             }).catch((err) => {
@@ -276,8 +276,24 @@ function Pokego() {
         });
     };
 
-    self.CatchPokemon = function (mapPokemon, pokeball, callback) {
+    self.fireAndForgetCatch = function(catchablePokemon) {
+        console.log('Here');
+        return new Promise(function(resolve, reject) {
+            self.EncounterPokemon(catchablePokemon).then((data) => {
+                self.CatchPokemon(data.WildPokemon, 1).then((final) => {
+                    return resolve(final);
+                }).catch((err) => {
+                    console.log(err);
+                });
+            }).catch((err) => {
+                console.log(err);
+            });
+        });
+    };
+
+    self.CatchPokemon = function (mapPokemon, pokeball) {
         console.log('Attempting to catch now...');
+        // console.log(mapPokemon);
         let {apiEndpoint, accessToken} = self.playerInfo;
         var catchPokemon = new RequestEnvelop.CatchPokemonMessage({
             'encounter_id': mapPokemon.EncounterId,
@@ -290,22 +306,17 @@ function Pokego() {
         });
 
         var req = new RequestEnvelop.Requests(103, catchPokemon.encode().toBuffer());
-
-        api_req(apiEndpoint, accessToken, req, function (err, f_ret) {
-            if (err) {
-                return callback(err);
-            }
-            else if (!f_ret || !f_ret.payload || !f_ret.payload[0]) {
-                return callback('No result');
-            }
-
-            var catchPokemonResponse = ResponseEnvelop.CatchPokemonResponse.decode(f_ret.payload[0]);
-            callback(null, catchPokemonResponse)
+        return new Promise(function(resolve, reject) {
+            api_req(apiEndpoint, accessToken, req).then((data) => {
+                if (!data || !data.payload || !data.payload[0]) {
+                    return reject(data);
+                }
+                return resolve(catchPokemonResponse = ResponseEnvelop.CatchPokemonResponse.decode(data.payload[0]));
+            }); 
         });
-
     };
 
-    self.EncounterPokemon = function (catchablePokemon, callback) {
+    self.EncounterPokemon = function (catchablePokemon) {
         // console.log(catchablePokemon);
         let {apiEndpoint, accessToken, latitude, longitude} = self.playerInfo;
 
@@ -320,19 +331,17 @@ function Pokego() {
 
         var req = new RequestEnvelop.Requests(102, encounterPokemon.encode().toBuffer());
 
-        api_req(apiEndpoint, accessToken, req, function (err, f_ret) {
-            if (err) {
-                return callback(err);
-            }
-            else if (!f_ret || !f_ret.payload || !f_ret.payload[0]) {
-                return callback('No result');
-            }
+        return new Promise(function(resolve, reject) {
 
-            var catchPokemonResponse = ResponseEnvelop.EncounterResponse.decode(f_ret.payload[0]);
-
-            callback(null, catchPokemonResponse);
+            api_req(apiEndpoint, accessToken, req).then((data) => {
+                if (!data || !data.payload || !data.payload[0]) {
+                    return reject(data);
+                }
+                var catchPokemonResponse = ResponseEnvelop.EncounterResponse.decode(data.payload[0]);
+                // console.log(catchPokemonResponse);
+                return resolve(catchPokemonResponse);
+            });
         });
-
     };
 
     self.GetLocationCoords = function () {
@@ -440,8 +449,8 @@ function Pokego() {
         console.log('[o] -> Created: ' + profile.creation_time);
         console.log('[o] -> Poke Storage: ' + profile.poke_storage);
         console.log('[o] -> Item Storage: ' + profile.item_storage);
-        console.log('[o] -> Star Dust: ' + profile.currency[0].amount);
-        console.log('[o] -> Poke Coin: ' + profile.currency[1].amount);
+        console.log('[o] -> Poke Coin: ' + profile.currency[0].amount);
+        console.log('[o] -> Star Dust: ' + profile.currency[1].amount);
         return true;
     };
 }
