@@ -107,6 +107,8 @@ Accepts raw coordinates or location name based on the type property.
 
 ## Thanks to:
 Python demo: [tejado](https://github.com/tejado/pokemongo-api-demo) <br>
+ES5 demo: [Armax](https://github.com/Armax/Pokemon-GO-node-api/) <br>
+
 
 ## Contact me
 [@Derek](mailto:derek@heroesplay.com)
