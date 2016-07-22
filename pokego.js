@@ -15,7 +15,7 @@ const pokemonlist = JSON.parse(fs.readFileSync(__dirname + '/pokemons.json', 'ut
 
 let builder = ProtoBuf.loadProtoFile('pokemon.proto');
 if (builder === null) {
-    builder = ProtoBuf.loadProtoFile(__dirname + '/pokemon2.proto');
+    builder = ProtoBuf.loadProtoFile(__dirname + '/pokemon.proto');
 }
 
 const pokemonProto = builder.build();
