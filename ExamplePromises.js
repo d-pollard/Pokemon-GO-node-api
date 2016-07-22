@@ -28,6 +28,9 @@ Pokego.init(username, password, location, provider)
 							var currentPokemon = heart.cells[i].WildPokemon[x];
 							var pokemon = Pokego.pokemonlist[parseInt(currentPokemon.pokemon.PokemonId)-1];
 							console.log('[+] There is a catchable ' + pokemon.name + ' -  ' + parseInt(currentPokemon.TimeTillHiddenMs) / 1000 + ' seconds until hidden.');
+							Pokego.fireAndForgetCatch(currentPokemon).then((data) => {
+								console.log(data);
+							});
 						}
 					}
 				}
