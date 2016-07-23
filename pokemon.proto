@@ -38,25 +38,35 @@ message RequestEnvelop {
   }
 
   message MessageQuad {
-    repeated bytes f1 = 1;
-    required bytes f2 = 2;
+    repeated uint64 f1 = 1 [packed=true];
+    repeated int64 f2 = 2 [packed=true];
     required double lat = 3;
     required double long = 4;
   }
-  message EncounterMessage {
-    repeated fixed64 encounter_id = 1;
-    required string spawn_point_id = 2;
-    required double player_latitude = 3;
-    required double player_longitude = 4;
-  }
+
   message CatchPokemonMessage {
-    repeated fixed64 encounter_id = 1;
+    required fixed64 encounter_id = 1;
     required int32 pokeball = 2;
     required double normalized_reticle_size = 3;
     required string spawnpoint_id = 4;
     required bool hit_pokemon = 5;
     required double spin_modifier = 6;
     required double normalized_hit_position = 7;
+   }
+
+  message EncounterMessage {
+    repeated fixed64 encounter_id = 1;
+    required string spawnpoint_id = 2;
+    required double player_latitude = 3;
+    required double player_longitude = 4;
+  }
+
+  message FortSearchMessage {
+  required string fort_id = 1;
+  required double player_latitude = 2;
+  required double player_longitude = 3;
+  required double fort_latitude = 4;
+    required double fort_longitude = 5;
   }
 }
 
@@ -888,29 +898,27 @@ message ResponseEnvelop {
       CHECKPOINT = 1;
   }
 
-  
   message CatchPokemonResponse {
-    optional CatchStatus status = 1;
-    optional double miss_percent = 2;
-    // optional uint64 captured_pokemon_id = 3;
-    // optional CaptureScore scores = 4;
+      optional CatchStatus Status = 1;
+      optional double MissPercent = 2;
+        // optional uint64 CapturedPokemonId = 3;
+      // optional CaptureAward Captureaward = 4;
 
-    enum CatchStatus {
-      CATCH_ERROR = 0;
-      CATCH_SUCCESS = 1;
-      CATCH_ESCAPE = 2;
-      CATCH_FLEE = 3;
-      CATCH_MISSED = 4;
-    }
+      enum CatchStatus {
+          CATCH_ERROR = 0;
+          CATCH_SUCCESS = 1;
+          CATCH_ESCAPE = 2;
+          CATCH_FLEE = 3;
+          CATCH_MISSED = 4;
+      }
   }
 
-  message CaptureScore {
-    repeated ActivityType activity_type = 1;
-    repeated int32 xp = 2;
-    repeated int32 candy = 3;
-    repeated int32 stardust = 4;
+  message CaptureAward {
+      repeated ActivityType activity = 1;
+      repeated int32 XP = 2;
+      repeated int32 Candy = 3;
+      repeated int32 Stardust = 4;
   }
-
   enum ActivityType {
       ACTIVITY_UNKNOWN = 0;
       ACTIVITY_CATCH_POKEMON = 1;
@@ -936,14 +944,7 @@ message ResponseEnvelop {
       ACTIVITY_HATCH_EGG_LARGE_BONUS = 21;
       ACTIVITY_DEFEAT_GYM_DEFENDER = 22;
       ACTIVITY_DEFEAT_GYM_LEADER = 23;
-  }
-
-  message CaptureAward {
-      repeated ActivityType ActivityType = 1;
-      repeated int32 XP = 2;
-      repeated int32 Candy = 3;
-      repeated int32 Stardust = 4;
-  }
+    }
 
   message CaptureProbability {
       repeated ItemId PokeballType = 1;
@@ -955,7 +956,7 @@ message ResponseEnvelop {
       optional WildPokemonProto WildPokemon = 1;
       optional Background EncounterBackground = 2;
       optional Status EncounterStatus = 3;
-      // optional CaptureProbability EncounterCaptureProbability = 4;
+      //optional CaptureProbability EncounterCaptureProbability = 4;
 
       enum Background {
           PARK = 0;
@@ -973,4 +974,28 @@ message ResponseEnvelop {
           POKEMON_INVENTORY_FULL = 7;
       }
   }
+
+  message FortSearchResponse {
+    optional Result result = 1;
+    repeated ItemAward items_awarded = 2;
+    optional int32 gems_awarded = 3;
+    optional PokemonData pokemon_data_egg = 4;
+    optional int32 experience_awarded = 5;
+    optional int64 cooldown_complete_timestamp_ms = 6;
+    optional int32 chain_hack_sequence_number = 7;
+
+    enum Result {
+      NO_RESULT_SET = 0;
+      SUCCESS = 1;
+      OUT_OF_RANGE = 2;
+      IN_COOLDOWN_PERIOD = 3;
+      INVENTORY_FULL = 4;
+    }
+  }
+
+  message ItemAward {
+    optional ItemId item_id = 1;
+    optional int32 item_count = 2;
+  }
+
 }

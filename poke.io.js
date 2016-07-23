@@ -7,9 +7,8 @@ const ProtoBuf = require('protobufjs');
 const GoogleOAuth = require('gpsoauthnode');
 const Long = require('long');
 const ByteBuffer = require('bytebuffer');
-const bignum = require('bignum');
 
-const s2 = require('simple-s2-node');
+const s2 = require('s2geometry-node');
 const Logins = require('./logins');
 const fs = require('fs');
 const pokemonlist = JSON.parse(fs.readFileSync(__dirname + '/pokemons.json', 'utf8'));
@@ -31,8 +30,9 @@ function GetCoords(self) {
     return [latitude, longitude];
 };
 
+
 function getNeighbors(lat, lng) {
-    var origin = s2.S2CellId.from_lat_lng(s2.S2LatLng.from_degrees(lat, lng)).parent(15);
+    var origin = new s2.S2CellId(new s2.S2LatLng(lat, lng)).parent(15);
     var walk = [origin.id()];
     // 10 before and 10 after
     var next = origin.next();
@@ -63,7 +63,8 @@ function Pokeio() {
         altitude: 0,
         locationName: '',
         provider: '',
-        apiEndpoint: ''
+        apiEndpoint: '',
+        tokenExpire: 0
     };
 
     self.DebugPrint = function (str) {
@@ -168,9 +169,10 @@ function Pokeio() {
                     return callback(err);
                 }
 
-                self.playerInfo.accessToken = token;
-                self.DebugPrint('[i] Received PTC access token!')
-                callback(null, token);
+                self.playerInfo.accessToken = token[0];
+                self.playerInfo.tokenExpire = token[1];
+                self.DebugPrint('[i] Received PTC access token! {Expires: ' + token[1] + '}');
+                callback(null, token[0]);
             });
         } else {
             Logins.GoogleAccount(user, pass, self, function (err, token) {
@@ -178,9 +180,10 @@ function Pokeio() {
                     return callback(err);
                 }
 
-                self.playerInfo.accessToken = token;
-                self.DebugPrint('[i] Received Google access token!')
-                callback(null, token);
+                self.playerInfo.accessToken = token[0];
+                self.playerInfo.tokenExpire = token[1];
+                self.DebugPrint('[i] Received Google access token! {Expires: ' + token[1] + '}');
+                callback(null, token[0]);
             });
         }
     };
@@ -238,45 +241,34 @@ function Pokeio() {
     self.Heartbeat = function (callback) {
         let {apiEndpoint, accessToken} = self.playerInfo;
 
-        let nullbytes = new Buffer(21);
+
+        var nullbytes = new Array(21);
         nullbytes.fill(0);
 
         // Generating walk data using s2 geometry
-        var walk = getNeighbors(self.playerInfo.latitude, self.playerInfo.longitude).sort((a, b) => {
-            return a.cmp(b);
-        });
-        var buffer = new ByteBuffer(21 * 10).LE();
-        walk.forEach((elem) => {
-            buffer.writeVarint64(s2.S2Utils.long_from_bignum(elem));
+        var walk = getNeighbors(self.playerInfo.latitude, self.playerInfo.longitude).sort(function (a, b) {
+            return a > b;
         });
 
         // Creating MessageQuad for Requests type=106
-        buffer.flip();
         var walkData = new RequestEnvelop.MessageQuad({
-            'f1': buffer.toBuffer(),
+            'f1': walk,
             'f2': nullbytes,
             'lat': self.playerInfo.latitude,
             'long': self.playerInfo.longitude
         });
 
-        var req = [
-            new RequestEnvelop.Requests(106, walkData.encode().toBuffer()),
-            new RequestEnvelop.Requests(126),
-            new RequestEnvelop.Requests(4, (new RequestEnvelop.Unknown3(Date.now().toString())).encode().toBuffer()),
-            new RequestEnvelop.Requests(129),
-            new RequestEnvelop.Requests(5, (new RequestEnvelop.Unknown3('05daf51635c82611d1aac95c0b051d3ec088a930')).encode().toBuffer())
-        ];
+        var req = [new RequestEnvelop.Requests(106, walkData.encode().toBuffer()), new RequestEnvelop.Requests(126), new RequestEnvelop.Requests(4, new RequestEnvelop.Unknown3(Date.now().toString()).encode().toBuffer()), new RequestEnvelop.Requests(129), new RequestEnvelop.Requests(5, new RequestEnvelop.Unknown3('05daf51635c82611d1aac95c0b051d3ec088a930').encode().toBuffer())];
 
         api_req(apiEndpoint, accessToken, req, function (err, f_ret) {
             if (err) {
                 return callback(err);
-            }
-            else if (!f_ret || !f_ret.payload || !f_ret.payload[0]) {
+            } else if (!f_ret || !f_ret.payload || !f_ret.payload[0]) {
                 return callback('No result');
             }
 
             var heartbeat = ResponseEnvelop.HeartbeatPayload.decode(f_ret.payload[0]);
-            callback(null, heartbeat)
+            callback(null, heartbeat);
         });
     };
 
@@ -291,6 +283,7 @@ function Pokeio() {
     };
 
     self.CatchPokemon = function (mapPokemon, pokeball, callback) {
+        console.log('Attempting to catch now...');
         let {apiEndpoint, accessToken} = self.playerInfo;
         var catchPokemon = new RequestEnvelop.CatchPokemonMessage({
             'encounter_id': mapPokemon.EncounterId,
@@ -319,14 +312,17 @@ function Pokeio() {
     };
 
     self.EncounterPokemon = function (catchablePokemon, callback) {
+        // console.log(catchablePokemon);
         let {apiEndpoint, accessToken, latitude, longitude} = self.playerInfo;
 
         var encounterPokemon = new RequestEnvelop.EncounterMessage({
             'encounter_id': catchablePokemon.EncounterId,
-            'spawn_point_id': catchablePokemon.SpawnPointId,
+            'spawnpoint_id': catchablePokemon.SpawnPointId,
             'player_latitude': latitude,
             'player_longitude': longitude
         });
+
+        // console.log(encounterPokemon);
 
         var req = new RequestEnvelop.Requests(102, encounterPokemon.encode().toBuffer());
 
@@ -390,6 +386,48 @@ function Pokeio() {
                 callback(null, self.GetLocationCoords());
             });
         }
+    };
+
+    self.changePosition = function () {
+        self.playerInfo.longitude = self.playerInfo.longitude + 0.000055;
+        self.playerInfo.latitude = self.playerInfo.latitude + 0.000055;
+        return true;
+    };
+
+    self.hatchEggs = function(cb) {
+        self.changePosition();
+        self.Heartbeat(cb);
+    };
+
+    self.GetFort = function(fortid, fortlat, fortlong, callback) {
+        var FortMessage = new RequestEnvelop.FortSearchMessage({
+            'fort_id': fortid,
+            'player_latitude': fortlat,
+            'player_longitude': fortlong,
+            'fort_latitude': fortlat,
+            'fort_longitude': fortlong
+        });
+
+        // console.log(FortMessage);
+
+        var req = new RequestEnvelop.Requests(101, FortMessage.encode().toBuffer());
+
+        api_req(self.playerInfo.apiEndpoint, self.playerInfo.accessToken, req, function (err, f_ret) {
+            if (err) {
+                return callback(err);
+            } else if (!f_ret || !f_ret.payload || !f_ret.payload[0]) {
+                return callback('No result');
+            }
+
+            var FortSearchResponse = ResponseEnvelop.FortSearchResponse.decode(f_ret.payload[0]);
+            callback(null, FortSearchResponse);
+        });
+    };
+
+    self.warpSpeed = function(lat,long) {
+        self.playerInfo.latitude = lat;
+        self.playerInfo.longitude = long;
+        return true;
     };
 }
 
