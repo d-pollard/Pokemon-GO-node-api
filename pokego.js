@@ -448,13 +448,30 @@ function Pokego() {
         let team = ['Nuetral','Mystic','Valor','Instinct'];
         console.log('[o] -> Player: ' + profile.username);
         console.log('[o] -> Team: ' + team[profile.team]);
-        console.log('[o] -> Created: ' + profile.creation_time);
+        console.log('[o] -> Created: ' + self.timeConverter(parseInt(profile.creation_time)));
         console.log('[o] -> Poke Storage: ' + profile.poke_storage);
         console.log('[o] -> Item Storage: ' + profile.item_storage);
         console.log('[o] -> Poke Coin: ' + profile.currency[0].amount);
         console.log('[o] -> Star Dust: ' + profile.currency[1].amount);
         return true;
     };
+
+
+
+    self.timeConverter = function(x){
+        var a = new Date(x);
+        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        var year = a.getFullYear();
+        var month = months[a.getMonth()];
+        var date = a.getDate();
+        var hour = a.getHours();
+        var min = a.getMinutes();
+        var sec = a.getSeconds();
+        var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec ;
+        return time;
+    }
+
+
 }
 
 module.exports = new Pokego();
