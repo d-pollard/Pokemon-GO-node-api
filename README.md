@@ -1,13 +1,17 @@
 # PokeGo
 Pokemon GO api node.js library, still WIP<br>
-Check main.js for examples
+Check `ExamplePromises.js`, `example.js`, and `exampleFort.js`  for examples
 
 ## Installation & Usage:
+```git
+$ git clone git@github.com:d-pollard/Pokemon-GO-node-api.git .
+```
 
 ```javascript
-var Pokeio = require('./pokemon-go-node-api')
+var Pokeio = require('./poke.io.js'); // when using poke.io.js
+var Pokego = require('./pokego.js'); // when using pokego.js
 ```
-Check [example.js](./example.js) for the result showed in the demo or check the documentation below.
+Check [ExamplePromises.js](./ExamplePromises.js) for the result showed in the demo or check the documentation below.
 
 ## Demo:
 ![alt tag](http://cl.arm4x.net/poke2.png)
