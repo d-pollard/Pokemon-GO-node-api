@@ -276,13 +276,18 @@ function Pokego() {
         });
     };
 
-    self.fireAndForgetCatch = function(catchablePokemon, name) {
+    self.fireAndForgetCatch = function(catchablePokemon, name, cnt, ball) {
+        if(ball === 'POKE_BALL') { ball = 1; } else if(ball === 'GREAT_BALL') { ball = 2; } else { ball = 3; }
         return new Promise(function(resolve, reject) {
             self.EncounterPokemon(catchablePokemon).then((data) => {
-                self.CatchPokemon(data.WildPokemon, 1).then((final) => {
+                self.CatchPokemon(data.WildPokemon, ball).then((final) => {
                     var status = ['Unexpected error', 'Successful catch', 'Catch Escape', 'Catch Flee', 'Missed Catch'];
-                    console.log('Catch status for ' + name + ': ' + status[parseInt(final.Status)]);
-                    return resolve(final);
+                    if(final.Status == null) {
+                        console.log('[x] Error: You have no more of that ball left to use!');
+                    } else {
+                        console.log('[s] Catch status for ' + name + ': ' + status[parseInt(final.Status)]);
+                    }
+                    return resolve(cnt);
                 }).catch((err) => {
                     console.log(err);
                 });
@@ -453,6 +458,7 @@ function Pokego() {
         console.log('[o] -> Item Storage: ' + profile.item_storage);
         console.log('[o] -> Poke Coin: ' + profile.currency[0].amount);
         console.log('[o] -> Star Dust: ' + profile.currency[1].amount);
+        console.log('[o] -> location lat:' + self.playerInfo.latitude + ' lng: ' + self.playerInfo.longitude);
         return true;
     };
 
