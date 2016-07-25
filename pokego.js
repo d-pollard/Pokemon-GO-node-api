@@ -210,8 +210,24 @@ function Pokego() {
             api_req(self.playerInfo.apiEndpoint, self.playerInfo.accessToken, req).then((f_ret) => {
                 var inventory = ResponseEnvelop.GetInventoryResponse.decode(f_ret.payload[0]);
                 return resolve(inventory);   
+            }).catch((val) => {
+                console.log(val);
             });
         });
+    };
+
+    self.displayInventory = function(data) {
+        //console.log(data);
+        var inventory = data.inventory_delta.inventory_items;
+        // console.log(inventory.length);
+        for (var i = inventory.length - 1; i >= 0; i--) {
+            var x = inventory[i];
+            var pokemon = x.inventory_item_data.pokemon
+            if(pokemon !== null && pokemon.pokemon_id !== null) {
+                var pkmn = self.pokemonlist[parseInt(pokemon.pokemon_id)-1];
+                console.log(pkmn.name + ' -> ' + pokemon.cp + 'cp ');
+            }
+        }
     };
 
     self.GetProfile = function () {
