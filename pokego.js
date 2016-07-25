@@ -167,7 +167,7 @@ function Pokego() {
         return new Promise(function(resolve, reject) {
             self.DebugPrint('[i] Logging with user: ' + user);
             if(self.playerInfo.provider === 'ptc') {
-                Logins.PokemonClub(user, pass).then((token) => {
+                Logins.PokemonClub(user, pass, self).then((token) => {
                     self.playerInfo.accessToken = token[0];
                     self.playerInfo.tokenExpire = token[1];
                     self.DebugPrint('[i] Received PTC access token! { Expires: ' + token[1] + ' }');
