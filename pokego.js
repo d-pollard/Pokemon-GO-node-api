@@ -172,6 +172,8 @@ function Pokego() {
                     self.playerInfo.tokenExpire = token[1];
                     self.DebugPrint('[i] Received PTC access token! { Expires: ' + token[1] + ' }');
                     return resolve(token[0]);
+                }).catch((err) => {
+                    return reject('[x] There was an error logging in. Please try again.')
                 });
             } else {
                 Logins.GoogleAccount(user, pass, self).then((token) => {
@@ -196,6 +198,9 @@ function Pokego() {
             ];
             api_req(api_url, self.playerInfo.accessToken, req).then((f_ret) => {
                 var apiEndpoint = `https://${f_ret.api_url}/rpc`;
+                if(apiEndpoint === 'https://null/rpc') {
+                   return reject('[x] There seams to be an issue. Please try again.') 
+                }
                 self.playerInfo.apiEndpoint = apiEndpoint;
                 self.DebugPrint('[i] Received API Endpoint: ' + apiEndpoint);
                 return resolve(apiEndpoint);

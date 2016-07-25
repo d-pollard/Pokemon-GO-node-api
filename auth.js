@@ -25,7 +25,11 @@ module.exports = {
                 if (err) {
                     return reject(err);
                 }
-                data = JSON.parse(body);
+                try {
+                    data = JSON.parse(body);
+                } catch(e) {
+                    return reject(e);
+                }
 
                 options = {
                     url: login_url,
@@ -77,8 +81,14 @@ module.exports = {
                             return reject(err);
                         }
 
-                        token = body.split('token=')[1];
-                        token = token.split('&')[0];
+                        // console.log(body);
+
+                        try {
+                            token = body.split('token=')[1];
+                            token = token.split('&')[0];
+                        } catch(e) {
+                            return reject('[x] Either the PTC servers are down OR your login information is wrong');
+                        }
 
                         var expiry = body.split('token=')[1].split('&expires=')[1];
 
