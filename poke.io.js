@@ -433,3 +433,4 @@ function Pokeio() {
 
 module.exports = new Pokeio();
 module.exports.Pokeio = Pokeio;
+module.exports.Pokego = require('./pokego.js');
