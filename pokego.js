@@ -244,6 +244,8 @@ function Pokego() {
 			} else if(pokemon !== null && pokemon.is_egg === true) {
 				// item *might be* an egg
 				console.log('An egg');
+			} else if(stats !== null) {
+				console.log(stats);
 			} else {
 				console.log(x);
 			}
@@ -464,7 +466,7 @@ function Pokego() {
 
 		var req = new RequestEnvelop.Requests(101, FortMessage.encode().toBuffer());
 		return new Promise(function(resolve, reject) {
-			api_req(self.playerInfo.apiEndpoint, self.playerInfo.accessToken, req).then((err, f_ret) {
+			api_req(self.playerInfo.apiEndpoint, self.playerInfo.accessToken, req).then((err, f_ret) => {
 				if (err) {
 					return reject(err);
 				} else if (!f_ret || !f_ret.payload || !f_ret.payload[0]) {
