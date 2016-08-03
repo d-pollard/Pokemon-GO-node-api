@@ -3,3 +3,6 @@ node_modules
 
 # Istanbul coverage report
 coverage
+
+# My tests
+derek

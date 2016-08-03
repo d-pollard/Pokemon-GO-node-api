@@ -67,6 +67,8 @@ function Pokego() {
 		tokenExpire: 0
 	};
 
+	self.myStats = false;
+
 	self.DebugPrint = function (str) {
 		if (self.playerInfo.debug === true) {
 			//self.events.emit('debug',str)
@@ -247,9 +249,28 @@ function Pokego() {
 			} else if(stats !== null) {
 				console.log(stats);
 			} else {
-				console.log(x);
+				// console.log(x);
 			}
 		}
+	};
+
+	self.getStats = function() {
+		return new Promise(function(resolve, reject) {
+			self.GetInventory().then((data) => {
+				var inventory = data.inventory_delta.inventory_items;
+				for (var i = inventory.length - 1; i >= 0; i--) {
+					var x = inventory[i];
+					var stats = x.inventory_item_data.player_stats;
+					if(stats !== null) {
+						// console.log(stats);
+						self.myStats = stats;
+						return resolve(stats);
+					} else {
+						continue;
+					}
+				}
+			});
+		});
 	};
 
 	self.GetProfile = function () {

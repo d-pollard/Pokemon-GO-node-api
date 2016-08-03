@@ -67,6 +67,8 @@ function Pokeio() {
         tokenExpire: 0
     };
 
+    self.myStats = false;
+
     self.DebugPrint = function (str) {
         if (self.playerInfo.debug === true) {
             //self.events.emit('debug',str)
@@ -234,6 +236,28 @@ function Pokeio() {
                 self.DebugPrint('[i] Logged in!');
             }
             callback(null, profile);
+        });
+    };
+
+    self.GetStats = function(callback) {
+        self.GetInventory(function(a,b) {
+            if(a === null) {
+                var inventory = b.inventory_delta.inventory_items;
+                for (var i = inventory.length - 1; i >= 0; i--) {
+                    var x = inventory[i];
+                    var stats = x.inventory_item_data.player_stats;
+                    if(stats !== null) {
+                        // console.log(stats);
+                        self.myStats = stats;
+                        callback(null, stats);
+                        return;
+                    } else {
+                        continue;
+                    }
+                }
+            } else {
+                callback(a, null);
+            }
         });
     };
 
