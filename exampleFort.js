@@ -44,8 +44,8 @@ Pokeio.init(username, password, location, provider, function(err) {
 					for (var i = hb.cells.length - 1; i >= 0; i--) {
 						if(hb.cells[i].Fort) {
 							var currentFortArr = hb.cells[i].Fort;
-							for (var i = currentFortArr.length - 1; i >= 0; i--) {
-								var currentFort = currentFortArr[i];
+							for (var j = currentFortArr.length - 1; j >= 0; j--) {
+								var currentFort = currentFortArr[j];
 								// console.log(currentFort);
 								if(currentFort.FortType === 1) {
 									// "Fort" is a pokestop
