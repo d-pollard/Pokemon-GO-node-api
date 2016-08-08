@@ -9,6 +9,14 @@ var provider = process.env.PGO_PROVIDER || 'google';
 var location = {
 	type: 'name',
 	name: process.env.PGO_LOCATION || 'Time Square'
+	
+// 	type: 'coords',
+//         coords: {
+//             latitude:  40.758896,
+//             longitude: -73.985130,
+//             altitude: 10
+//         }
+
 };
 
 Pokeio.init(username, password, location, provider, function(err) {
