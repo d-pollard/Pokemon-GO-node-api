@@ -67,7 +67,7 @@ Pokeio.init(username, password, location, provider, function(err) {
 					// console.log(util.inspect(hb, showHidden=false, depth=10, colorize=true));
 				}
 			});
-		}, 2000);
+		}, 5000);
 
 	});
 

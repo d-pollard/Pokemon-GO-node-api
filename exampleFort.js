@@ -89,7 +89,7 @@ Pokeio.init(username, password, location, provider, function(err) {
 					}
 				}
 			});
-		}, 2000);
+		}, 5000);
 
 	});
 

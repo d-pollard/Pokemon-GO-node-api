@@ -57,5 +57,5 @@ Pokego.init(username, password, location, provider).then((profile) => {
 				resolve('[p] Looping stalled to complete execution of task..');
 			}
 		}).then((a) => {console.log(a);});
-	}, 2000);
+	}, 5000);
 });
