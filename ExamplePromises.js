@@ -8,6 +8,14 @@ var pokeBall = process.env.PGO_POKEBALL || 'POKE_BALL'; // POKE_BALL or GREAT_BA
 var location = {
 	type: 'name',
 	name: process.env.PGO_LOCATION || 'Time Square'
+	
+// 	type: 'coords',
+//         coords: {
+//             latitude:  40.758896,
+//             longitude: -73.985130,
+//             altitude: 10
+//         }
+
 };
 
 var Pokego = require('./pokego.js');
@@ -49,5 +57,5 @@ Pokego.init(username, password, location, provider).then((profile) => {
 				resolve('[p] Looping stalled to complete execution of task..');
 			}
 		}).then((a) => {console.log(a);});
-	}, 2000);
+	}, 5000);
 });
