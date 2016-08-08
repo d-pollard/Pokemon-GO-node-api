@@ -1,4 +1,4 @@
-var Pokeio = require('pokemon-go-node-api');
+var Pokeio = require('./poke.io.js');
 var util = require('util');
 util.inspect(console, true);
 
